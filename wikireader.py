@@ -52,7 +52,6 @@ class wikiClues:
         
         # clue 0
         short_des = soup.find('div', class_='shortdescription')
-        print(short_des.text, '\n')        
         clue_list = [short_des.text]
         
         # setup for paragraph based clues
@@ -121,7 +120,7 @@ if __name__ == '__main__':
     testReader = wikiClues()
     art = testReader.get_pop_articles()
     i = random.randint(0, len(art))
-    i = 247
+    #i = 247
     print(i)
     ans = art[i][0]
     clue_list = testReader.get_clues(art[i][0], art[i][1])
