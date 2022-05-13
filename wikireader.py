@@ -12,6 +12,7 @@ import re
 import random
 import json
 import math
+import spacy
 
 class wikiClues:
     def __init__(self):
@@ -79,7 +80,28 @@ class wikiClues:
         
         
         return clue_list
+
         
+    def get_clues_api(self, article):        
+        text = self.parse(article[0])
+        #print(text)
+        header_re = re.compile(u'\ufffd.*$', flags=re.M|re.UNICODE)
+        headers = []
+        for match in header_re.findall(text):
+            text = text.replace(match, '')
+            match = match.replace('\ufffd', '')
+            match = (' ' * int(int(match[0]) - 2)) + match[1:]
+            headers.append(match)        
+        
+        nlp = spacy.load('en_core_web_sm')
+        doc = nlp(text)
+        sentences = [sent for sent in doc.sents]
+        print(len(sentences))
+        #for p in sentences:
+        #   print(p, end='\n==\n')
+
+
+
     def clean_clue(self, clue, pg_name):
         keywords = pg_name.split(' ')
         for word in keywords:
@@ -104,14 +126,42 @@ class wikiClues:
                 clue_char[strt+1:end] = '*' * (length+1)
                 clue = ''.join(clue_char)
         return clue
-                
+    
+    def parse(self, title):
+        API_URL = "https://en.wikipedia.org/w/api.php"
+        params = {
+        	"action": "query",
+        	"format": "json",
+        	"prop": "extracts",
+        	"titles": title,
+        	"explaintext": 1,
+        	"exsectionformat": "raw"
+        }
+        headers = {"User-Agent": "Wikipedle/1.0"}
+        req = requests.get(API_URL, headers=headers, params=params)
+        res = req.json()
+        res = res["query"]["pages"]
+        text = res[next(iter(res))]['extract']
+        return text
+                  
         
         
-        
-        
+def test_non_api(testReader, art):
+    i = random.randint(0, len(art))
+    i = 152
+    print(i)
+    ans = art[i][0]
+    clue_list = testReader.get_clues(art[i][0], art[i][1])
+    for c in clue_list:
+        print(c)
 
 
-
+def test_api(testReader, articles):
+    i = 152
+    h = testReader.get_clues_api(art[152])
+    print(h)
+    #for hs in h:
+    #    print(hs)
 
 
 if __name__ == '__main__':
@@ -119,12 +169,7 @@ if __name__ == '__main__':
 
     testReader = wikiClues()
     art = testReader.get_pop_articles()
-    i = random.randint(0, len(art))
-    #i = 247
-    print(i)
-    ans = art[i][0]
-    clue_list = testReader.get_clues(art[i][0], art[i][1])
-    for c in clue_list:
-        print(c)
+    #test_non_api(testReader, art)
+    test_api(testReader, art)
     
     
