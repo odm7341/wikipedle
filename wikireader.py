@@ -17,6 +17,7 @@ import spacy
 class wikiClues:
     def __init__(self):
         self.url_prefix = 'https://en.wikipedia.org'
+        self.noun_set = set()
         
     def is_valid_wiki_row(self, tag):
         td_rank = re.compile(r'\<td\>[0-9]+') # match td followed by valid rank
@@ -83,17 +84,16 @@ class wikiClues:
 
         
     def get_clues_api(self, search_term):
-        useless_headers = ['See also', 'Notes', 'References', 'Further reading', 'External links']
         text = self.parse_by_title(search_term)
-        #print(title)
         headers, content  = self.format_sections(text)
         
         content = ''.join(content)
-        
+        desc_clue = self.brief_desc(self.title)
         
         nlp = spacy.load('en_core_web_sm')
         doc = nlp(content)        
-        sentences = [sent for sent in doc.sents]
+        sentences = [str(sent) for sent in doc.sents]
+        
         
         if (len(sentences) < 20):
             print('article too small')
@@ -104,11 +104,21 @@ class wikiClues:
         sen_clues.append(''.join(sentences[10:15]))
         sen_clues.append(''.join(sentences[15:20]))
         
-        for clue in sen_clues:
-            clue = self.scrub_keywords(clue, self.title)
+        clues = [headers]        
+        for i in range(len(sen_clues)):
+            if (i == 1):
+                clues.append(desc_clue)
+            clue = self.scrub_keywords(sen_clues[i], self.title)
+            clue = self.scrub_parens(clue)
             clue = self.scrub_prop_noun(clue)
+            clue = self.censor_prop_noun(clue)
+            clues.append(clue)
             
-        return sen_clues
+        game = {
+            'clues': clues,
+            'answer': self.title
+            }         
+        return game
 
 
     def format_sections(self, text):
@@ -134,7 +144,7 @@ class wikiClues:
     def scrub_keywords(self, text, keyword):
         keywords = keyword.split(' ')
         for word in keywords:
-            text = text.replace(word, '***')
+            text = text.replace(word, '???')
         return text
     
     def scrub_parens(self, text):
@@ -145,7 +155,7 @@ class wikiClues:
     def scrub_prop_noun(self, clue):
         proper_noun = re.compile(r'\b([A-Z][a-z]+)\b', flags=re.M)
         for match in proper_noun.findall(clue):
-            clue = clue.replace(match, '***')
+            #clue = clue.replace(match, '***')
             self.noun_set.add(match)
         
         return clue
@@ -158,7 +168,7 @@ class wikiClues:
                 end = match.end()
                 clue_char = list(clue)
                 length = (end-1) - (strt + 1)
-                clue_char[strt+1:end] = '*' * (length+1)
+                clue_char[strt+1:end-1] = '*' * (length)
                 clue = ''.join(clue_char)
         return clue
     
@@ -189,6 +199,12 @@ class wikiClues:
         text = res["query"]["pages"][str(page_id)]['extract']
         self.title = res["query"]["pages"][str(page_id)]['title']
         return text
+    
+    def brief_desc(self, title):
+        url = f'https://api.wikimedia.org/core/v1/wikipedia/en/page/{title}/description'
+        req = requests.get(url)
+        return req.json()['description']
+        
                   
         
         
@@ -204,13 +220,13 @@ def test_non_api(testReader, art):
 
 def test_api(testReader, articles):
     i = random.randint(0, len(art))
-    i = 152
+    #i = 432
     print(i)
-    #h = testReader.get_clues_api(art[i][0])
-    h = testReader.get_clues_api('Expanse novel')
+    h = testReader.get_clues_api(art[i][0])
+    #h = testReader.get_clues_api('san fransisco')
     #for hs in h:
     #    print(hs)
-    return h, art[i][0]
+    return h
 
 
 if __name__ == '__main__':
@@ -219,6 +235,11 @@ if __name__ == '__main__':
     testReader = wikiClues()
     art = testReader.get_pop_articles()
     #test_non_api(testReader, art)
-    clue, ans = test_api(testReader, art)
+    games = []
+    for i in range(10):
+        games.append(test_api(testReader, art))
+        
+    with open('test.json', 'w') as file:
+        json.dump(games, file, indent=4)
     
     
