@@ -231,12 +231,44 @@ def test_api(testReader, articles):
 
 if __name__ == '__main__':
     print('TESTS...')
+    
+    used = [396,
+    88,
+    232,
+    642,
+    553,
+    800,
+    96,
+    730,
+    239,
+    439,
+    636,
+    625,
+    517,
+    234,
+    471,
+    249,
+    473,
+    411,
+    131,
+    831,
+    835,
+    688,
+    21,
+    151,
+    282,
+    185,
+    592,
+    744,
+    658,
+    515,
+    827]
 
     testReader = wikiClues()
     art = testReader.get_pop_articles()
     #test_non_api(testReader, art)
     games = []
-    for i in range(10):
+    for i in range(31):
         games.append(test_api(testReader, art))
         
     with open('test.json', 'w') as file:
