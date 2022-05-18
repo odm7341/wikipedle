@@ -133,7 +133,7 @@ class wikiClues:
             if (heading[1:] in junk_headers):
                 pass
             elif (int(heading[0]) <= 2):
-                headers.append(self.scrub_keywords(heading[1:], self.title))
+                headers.append(self.scrub_keywords(heading[1:] + ' ', self.title))
                 content.append(self.scrub_parens(sep_text[i+1]))
             else:
                 content.append(self.scrub_parens(sep_text[i+1]))
@@ -231,7 +231,7 @@ def test_api(testReader, articles):
 def get_clues_from_list(testReader, articles, lst):
     games = []
     for a in lst:
-        print(articles[a][0])
+        #print(articles[a][0])
         games.append(testReader.get_clues_api(articles[a][0]))
     with open('test.json', 'w') as file:
         json.dump(games, file, indent=4)
