@@ -144,7 +144,7 @@ class wikiClues:
     def scrub_keywords(self, text, keyword):
         keywords = keyword.split(' ')
         for word in keywords:
-            text = text.replace(word, '???')
+            text = text.replace(word, '___')
         return text
     
     def scrub_parens(self, text):
@@ -228,6 +228,15 @@ def test_api(testReader, articles):
     #    print(hs)
     return h
 
+def get_clues_from_list(testReader, articles, lst):
+    games = []
+    for a in lst:
+        print(articles[a][0])
+        games.append(testReader.get_clues_api(articles[a][0]))
+    with open('test.json', 'w') as file:
+        json.dump(games, file, indent=4)
+    
+
 
 if __name__ == '__main__':
     print('TESTS...')
@@ -267,11 +276,12 @@ if __name__ == '__main__':
     testReader = wikiClues()
     art = testReader.get_pop_articles()
     #test_non_api(testReader, art)
-    games = []
-    for i in range(31):
-        games.append(test_api(testReader, art))
-        
-    with open('test.json', 'w') as file:
-        json.dump(games, file, indent=4)
+    #games = []
+    #for i in range(31):
+    #    games.append(test_api(testReader, art))
+    #    
+    #with open('test.json', 'w') as file:
+    #    json.dump(games, file, indent=4)
+    get_clues_from_list(testReader, art, used)
     
     
