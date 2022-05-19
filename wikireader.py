@@ -99,10 +99,10 @@ class wikiClues:
             print('article too small')
             return
         sen_clues = []
-        sen_clues.append(''.join(sentences[:5]))
-        sen_clues.append(''.join(sentences[5:10]))
-        sen_clues.append(''.join(sentences[10:15]))
-        sen_clues.append(''.join(sentences[15:20]))
+        sen_clues.append('  '.join(sentences[:5]))
+        sen_clues.append('  '.join(sentences[5:10]))
+        sen_clues.append('  '.join(sentences[10:15]))
+        sen_clues.append('  '.join(sentences[15:20]))
         
         clues = [headers]        
         for i in range(len(sen_clues)):
@@ -208,32 +208,13 @@ class wikiClues:
                   
         
         
-def test_non_api(testReader, art):
-    i = random.randint(0, len(art))
-    #i = 152
-    print(i)
-    ans = art[i][0]
-    clue_list = testReader.get_clues(art[i][0], art[i][1])
-    for c in clue_list:
-        print(c)
-
-
-def test_api(testReader, articles):
-    i = random.randint(0, len(art))
-    #i = 432
-    print(i)
-    h = testReader.get_clues_api(art[i][0])
-    #h = testReader.get_clues_api('san fransisco')
-    #for hs in h:
-    #    print(hs)
-    return h
-
-def get_clues_from_list(testReader, articles, lst):
+def write_clue_list(testReader, articles, lst):
     games = []
     for a in lst:
         #print(articles[a][0])
+        print(a)
         games.append(testReader.get_clues_api(articles[a][0]))
-    with open('test.json', 'w') as file:
+    with open('games.json', 'w') as file:
         json.dump(games, file, indent=4)
     
 
@@ -273,8 +254,8 @@ if __name__ == '__main__':
     515,
     827]
 
-    testReader = wikiClues()
-    art = testReader.get_pop_articles()
+    myGames = wikiClues()
+    art = myGames.get_pop_articles()
     #test_non_api(testReader, art)
     #games = []
     #for i in range(31):
@@ -282,6 +263,24 @@ if __name__ == '__main__':
     #    
     #with open('test.json', 'w') as file:
     #    json.dump(games, file, indent=4)
-    get_clues_from_list(testReader, art, used)
+    write_clue_list(myGames, art, used)
     
-    
+def test_non_api(testReader, art):
+    i = random.randint(0, len(art))
+    #i = 152
+    print(i)
+    ans = art[i][0]
+    clue_list = testReader.get_clues(art[i][0], art[i][1])
+    for c in clue_list:
+        print(c)
+
+
+def test_api(testReader, articles):
+    i = random.randint(0, len(art))
+    #i = 432
+    print(i)
+    h = testReader.get_clues_api(art[i][0])
+    #h = testReader.get_clues_api('san fransisco')
+    #for hs in h:
+    #    print(hs)
+    return h
