@@ -210,10 +210,14 @@ class wikiClues:
         
 def write_clue_list(testReader, articles, lst):
     games = []
-    for a in lst:
+    i = random.randint(0, len(art))
+    for a in range(32):
+        while i in lst:
+            i = random.randint(0, len(art))
+        print(i, ',', sep='')
+        lst.append(i)
         #print(articles[a][0])
-        print(a)
-        games.append(testReader.get_clues_api(articles[a][0]))
+        games.append(testReader.get_clues_api(articles[i][0]))
     with open('games.json', 'w') as file:
         json.dump(games, file, indent=4)
     
@@ -222,22 +226,10 @@ def write_clue_list(testReader, articles, lst):
 if __name__ == '__main__':
     print('TESTS...')
     
-    used = [396,
-    88,
-    232,
-    642,
-    553,
-    800,
-    96,
-    730,
-    239,
-    439,
-    636,
-    625,
-    517,
-    234,
-    471,
-    249,
+    used = [
+    50,
+    745,
+    674,
     473,
     411,
     131,
